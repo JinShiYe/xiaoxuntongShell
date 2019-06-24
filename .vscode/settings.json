@@ -1,0 +1,6 @@
+{
+    "javascript.implicitProjectConfig.experimentalDecorators": true,
+    "outline.problems.colors": false,
+    "outline.problems.badges": false,
+    "outline.problems.enabled": false
+}

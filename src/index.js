@@ -1,7 +1,9 @@
+ /* jshint esversion: 6 */ 
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './test1';
+// import DemoR from './RouterDemo';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(<App />, document.getElementById('root'));
