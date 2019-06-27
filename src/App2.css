@@ -23,20 +23,20 @@ html,body,#root,.divSum {
     position: relative;
   }
   .login-card {
-    position: absolute;
+    /* position: absolute; */
        right: -60%;
-      top: 20%;
-    margin-top: -160px;
+      /* top: 20%; */
+    margin-top: 160px;
       width: 300px;
   }
   .login-card .ant-card-head {
     border-bottom: 1px solid #ddd;
   }
   .login-card1 {
-    position: absolute;
+    /* position: absolute; */
        right: -20%;
-      top: 15%;
-    margin-top: -130px;
+      /* top: 15%;
+    margin-top: -130px; */
       width: 300px;
   }
   .ant-form-item-label {

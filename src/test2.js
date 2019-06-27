@@ -17,11 +17,10 @@ var footerDescription2 = '山东金视野 提供技术支持.  鲁ICP备09042772
 
 function Home(props) {
     return (
-        <div className="login-wrapper1">
+        // <div className="login-wrapper1">
         <Card className="login-card1" title="修改密码">
             <WrappedNormalLoginForm/>
-        </Card>
-        </div>);
+        </Card>);
 }
 
 class NormalLoginForm extends React.Component {
@@ -32,13 +31,6 @@ class NormalLoginForm extends React.Component {
         isOk: false,
         msg: null
     };
-    componentDidMount() {
-        window.addEventListener('resize', this.changeWindow);
-    }
-    changeWindow=()=>{
-        let ifm= document.getElementById("myId");
-        ifm.height=(document.documentElement.clientHeight-200);
-    }
     verifyCode = () => {
         const src = '/emsys/Admin/Public/verifyCode?r=' + Math.random();
         this.setState({src});
@@ -134,7 +126,7 @@ class NormalLoginForm extends React.Component {
                     )}
                 </Form.Item>
                 <Form.Item>
-                    <Button className="login-btn" type="primary" disabled={this.state.loading} onClick={this.submit}>登录</Button>
+                    <Button className="login-btn" type="primary" disabled={this.state.loading} onClick={this.submit}>确定</Button>
                 </Form.Item>
             </Form>
         );
@@ -146,7 +138,7 @@ const WrappedNormalLoginForm = withRouter(Form.create({name: 'normal_login'})(No
 class App11 extends Component {
     render() {
         return (
-            <div className='divSum' id='myId'>
+            <div className='divSum'>
                 <Home></Home>
             </div>
             // <div>ksjfg;lisdf;glsjf;dij</div>

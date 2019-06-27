@@ -12,7 +12,7 @@ import 'antd/dist/antd.css';
 import { MD5} from 'crypto-js';
 import myUtils from './myUtils';
 import storekeyname from './storeKeyName';
-import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
+import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
 import MainPage from './test3';
 import Store from './store';
 
@@ -166,14 +166,14 @@ window.addEventListener('message', function(messageEvent) {
 class App extends Component {
     render() {
         return (
-            <BrowserRouter>
+            <HashRouter>
                 <div className='divSum'>
                     <Switch>
                         <Route exact path='/' component={Home}/>
                         <Route path='/test3' component={MainPage}/>
                     </Switch>
                 </div>
-            </BrowserRouter>
+            </HashRouter>
         );
     }
 }

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm} from 'antd';
-import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
+import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
 import './App2.css';
 import storekeyname from './storeKeyName';
 import Store from './store';
@@ -25,13 +25,13 @@ class MyIframe extends  Component{
         console.log(this.url)
         document.getElementById('myId').src = this.url;
     }
-    componentDidMount() {
-        window.addEventListener('resize', this.changeWindow);
-    }
-    changeWindow=()=>{
-        let ifm= document.getElementById("myId");
-        ifm.height=(document.documentElement.clientHeight-200);
-    }
+    // componentDidMount() {
+    //     window.addEventListener('resize', this.changeWindow);
+    // }
+    // changeWindow=()=>{
+    //     let ifm= document.getElementById("myId");
+    //     ifm.height=(document.documentElement.clientHeight-200);
+    // }
     render() {
         return (
             <Iframe src={this.url}
@@ -96,10 +96,6 @@ class test3 extends Component {
             type:"iframe",
         };
     }
-
-    componentWillMount() {
-        // message.success("6666666666")
-    }
     componentDidMount() {
         var comData1 = {
             platform_code: storekeyname.PLATFORMCODE, //平台代码
@@ -147,7 +143,7 @@ class test3 extends Component {
                     const element1 = element.childList[a];
                     console.log('e.key:'+e.key+',element1.id:'+element1.id);
                     if (e.key.toString() === 'item1') {
-                        fra.setUrl('http://192.168.1.121:8081/notice_module');
+                        fra.setUrl('https://www.baidu.com');
                         that.setState({
                             iframeName:'首页'
                         });
@@ -196,7 +192,7 @@ class test3 extends Component {
             componment=<App11 ref={(node)=>fra=node}/>
         }
         return (
-            <Layout>
+            <Layout style={{height:'100%'}}>
                 <Header className="header">
                     <div className="logo"/>
                        <Avatar size="large" style={{marginTop: '-10px'}} src={Store.get(storekeyname.personIfo).user.img_url}/>
@@ -263,14 +259,14 @@ const Main=withRouter(test3);
 class MainPage extends Component {
     render() {
         return (
-            <BrowserRouter>
+            <HashRouter>
                 <main className='divSum'>
                     <Switch>
                         <Route exact path='/test3' component={Main}/>
                         <Route path='/' component={Home}/>
                     </Switch>
                 </main>
-            </BrowserRouter>
+            </HashRouter>
         );
     }
 }
