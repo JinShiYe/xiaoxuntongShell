@@ -147,7 +147,7 @@ class test3 extends Component {
                     const element1 = element.childList[a];
                     console.log('e.key:'+e.key+',element1.id:'+element1.id);
                     if (e.key.toString() === 'item1') {
-                        fra.setUrl('https://www.baidu.com');
+                        fra.setUrl('http://192.168.1.121:8081/notice_module');
                         that.setState({
                             iframeName:'首页'
                         });
