@@ -7,6 +7,7 @@ import Store from './store';
 import Iframe from 'react-iframe';
 import myUtils from './myUtils';
 import Home from './test1';
+import App11 from './test2';
 
 var tempV = Store.get(storekeyname.personIfo);
 console.log('tempV:' + JSON.stringify(tempV));
@@ -91,7 +92,9 @@ let fra=null;
 class test3 extends Component {
     constructor(props) {
         super(props);
-        this.state = {menusList:[],iframeName:'首页'};
+        this.state = {menusList:[],iframeName:'首页',
+            type:"iframe",
+        };
     }
 
     componentWillMount() {
@@ -132,29 +135,36 @@ class test3 extends Component {
 
     handleClick=e=>{
         console.log('e.key:'+e.key);
-        for (let index = 0; index < this.state.menusList.length; index++) {
-            const element = this.state.menusList[index];
-            for (let a = 0; a < element.childList.length; a++) {
-                const element1 = element.childList[a];
-                console.log('e.key:'+e.key+',element1.id:'+element1.id);
-                if (e.key.toString() === 'item1') {
-                    fra.setUrl('https://www.baidu.com');
-                    this.setState({
-                        iframeName:'首页'
-                    });
-                }else if (e.key.toString() === element1.id.toString()) {
-                    let url = element1.url + '?token='+ Store.get(storekeyname.personIfo).access_token;
-                    console.log('url:'+url);
-                    fra.setUrl(url);
-                    // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                    window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
-                    // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                    this.setState({
-                        iframeName:element1.name
-                    });
+        this.setState({
+            type:"iframe"
+        })
+        let that=this;
+        setTimeout(function () {
+            console.log(fra)
+            for (let index = 0; index < that.state.menusList.length; index++) {
+                const element = that.state.menusList[index];
+                for (let a = 0; a < element.childList.length; a++) {
+                    const element1 = element.childList[a];
+                    console.log('e.key:'+e.key+',element1.id:'+element1.id);
+                    if (e.key.toString() === 'item1') {
+                        fra.setUrl('https://www.baidu.com');
+                        that.setState({
+                            iframeName:'首页'
+                        });
+                    }else if (e.key.toString() === element1.id.toString()) {
+                        let url = element1.url + '?token='+ Store.get(storekeyname.personIfo).access_token;
+                        console.log('url:'+url);
+                        fra.setUrl(url);
+                        // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                        window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
+                        // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                        that.setState({
+                            iframeName:element1.name
+                        });
+                    }
                 }
             }
-        }
+        },500)
     }
     confirm=e=>{
         console.log(e);
@@ -171,11 +181,20 @@ class test3 extends Component {
       onClickModify = ({ key }) => {
         console.log('key:'+key);
         if (key === 'modifyPW') {
-            console.log('1231213123');
-            fra.setUrl('http://localhost:3000/test3/#/test2');
+            this.setState({
+                type:"modifyPW"
+            })
         }
       }
+
     render() {
+        let type=this.state.type;
+        let componment=null;
+        if(type=="iframe"){
+            componment=<MyIframe ref={(node)=>fra=node}/>;
+        }else if(type=="modifyPW"){
+            componment=<App11 ref={(node)=>fra=node}/>
+        }
         return (
             <Layout>
                 <Header className="header">
@@ -230,7 +249,7 @@ class test3 extends Component {
                                 minHeight: 280,
                             }}
                         >
-                            <MyIframe ref={(node)=>fra=node}/>
+                            {componment}
                         </Content>
                     </Layout>
                 </Layout>
