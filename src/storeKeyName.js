@@ -10,6 +10,9 @@ const storeKeyName={
     qiniuAccessKey : 'PbkUIuunZ43RmqRWKhBxmdciWuhSMgKnjz5qE2AN',//七牛 AK
     qiniuSecretKey : 'yYfeYPW-6jUysfR9ZGNx_LD6z6m4drUiU70hs8jX',//七牛 SK
     personIfo:'personInfo1111',//存放登录的个人信息
+    sysName : '校讯通',
+    footerDescription1 : 'Copyright © 2004 - 2019 goldeneyes. All Rights Reserved',
+    footerDescription2 : '山东金视野 提供技术支持.  鲁ICP备09042772号-6',
 };
 switch (storeKeyName.qiniuSpacePrivate) {
     case true:

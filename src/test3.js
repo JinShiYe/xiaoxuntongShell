@@ -6,6 +6,7 @@ import storekeyname from './storeKeyName';
 import Store from './store';
 import Iframe from 'react-iframe';
 import myUtils from './myUtils';
+import Home from './test1';
 
 var tempV = Store.get(storekeyname.personIfo);
 console.log('tempV:' + JSON.stringify(tempV));
@@ -45,48 +46,56 @@ class MyIframe extends  Component{
         )
     }
 }
-const onClick = ({ key }) => {
-    console.log('key:'+key);
-    if (key === 'modifyPW') {
-        fra.setUrl('http://localhost:3000/test2');
-    }
-  };
-  function confirm(e) {
-    console.log(e);
-    message.success('Click on Yes');
-  }
+// const onClick = ({ key }) => {
+//     console.log('key:'+key);
+//     if (key === 'modifyPW') {
+//         fra.setUrl('http://localhost:3000/test3');
+//     }
+//   };
+//   function confirm(e) {
+//     console.log(e);
+//     message.success('Click on Yes');
+//     let taa = this.props.history;
+//     taa.push('/test1');
+//   }
   
-  function cancel(e) {
-    console.log(e);
-    message.error('Click on No');
-  }
+//   function cancel(e) {
+//     console.log(e);
+//     message.error('Click on No');
+//   }
   
-  const menu = (
-    <Menu onClick={onClick}>
-      <Menu.Item key="modifyPW">修改密码</Menu.Item>
-      <Menu.Item key="return">
-      <Popconfirm
-    title="确认退出吗？"
-    onConfirm={confirm}
-    onCancel={cancel}
-    okText="是"
-    cancelText="否"
-  >
-    <a href="#">退出</a>
-  </Popconfirm>
-      </Menu.Item>
-    </Menu>
-  );
+//   const menu = (
+//     <Menu onClick={onClick}>
+//       <Menu.Item key="modifyPW">修改密码</Menu.Item>
+//       <Menu.Item key="return">
+//       <Popconfirm
+//     title="确认退出吗？"
+//     onConfirm={confirm}
+//     onCancel={cancel}
+//     okText="是"
+//     cancelText="否"
+//   >
+//     <a href="#">退出</a>
+//   </Popconfirm>
+//       </Menu.Item>
+//     </Menu>
+//   );
+
+window.addEventListener('message', function(ev) {
+    // if (ev.source !== window.parent) {return;}
+    var data = ev.data;
+    console.info('message from parent test3:', data);
+}, false);
 
 let fra=null;
 class test3 extends Component {
     constructor(props) {
         super(props);
-        this.state = {menusList:[]};
+        this.state = {menusList:[],iframeName:'首页'};
     }
 
     componentWillMount() {
-        message.success("6666666666")
+        // message.success("6666666666")
     }
     componentDidMount() {
         var comData1 = {
@@ -128,14 +137,44 @@ class test3 extends Component {
             for (let a = 0; a < element.childList.length; a++) {
                 const element1 = element.childList[a];
                 console.log('e.key:'+e.key+',element1.id:'+element1.id);
-                if (e.key.toString() === element1.id.toString()) {
+                if (e.key.toString() === 'item1') {
+                    fra.setUrl('https://www.baidu.com');
+                    this.setState({
+                        iframeName:'首页'
+                    });
+                }else if (e.key.toString() === element1.id.toString()) {
                     let url = element1.url + '?token='+ Store.get(storekeyname.personIfo).access_token;
                     console.log('url:'+url);
                     fra.setUrl(url);
+                    // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                    window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
+                    // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                    this.setState({
+                        iframeName:element1.name
+                    });
                 }
             }
         }
     }
+    confirm=e=>{
+        console.log(e);
+        Store.set(storekeyname.personIfo, {});
+        // message.success('Click on Yes');
+        let taa = this.props.history;
+        taa.push('/');
+      }
+      
+      cancel=e=> {
+        console.log(e);
+        // message.error('Click on No');
+      }
+      onClickModify = ({ key }) => {
+        console.log('key:'+key);
+        if (key === 'modifyPW') {
+            console.log('1231213123');
+            fra.setUrl('http://localhost:3000/test3/#/test2');
+        }
+      }
     render() {
         return (
             <Layout>
@@ -145,7 +184,12 @@ class test3 extends Component {
                        <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
                        <span style={{float:'right'}}> 
                             <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={Store.get(storekeyname.personIfo).user.img_url}/>
-                            <Dropdown overlay={menu}>
+                            <Dropdown overlay={<Menu onClick={this.onClickModify}>
+                                                    <Menu.Item key="modifyPW">修改密码</Menu.Item>
+                                                    <Menu.Item key="return">
+                                                        <Popconfirm title="确认退出吗？" onConfirm={this.confirm} onCancel={this.cancel} okText="是" cancelText="否"><a href="#">退出</a></Popconfirm>
+                                                    </Menu.Item>
+                                                </Menu>}>
                                 <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}} href="#">欢迎，{Store.get(storekeyname.personIfo).user.name} 
                                     <Icon type="down" />
                                 </a>
@@ -162,6 +206,9 @@ class test3 extends Component {
                             style={{height: '100%', borderRight: 0}}
                             onClick={this.handleClick}
                         >
+                            {/* <SubMenu key='sub1' title={<span><Icon type="user"/>首页</span>}> */}
+                                <Menu.Item key='item1'><span><Icon type="user"/>首页</span></Menu.Item>
+                             {/* </SubMenu> */}
                             {this.state.menusList.map((listModel) =>
                                 <SubMenu key={listModel.id} title={<span><Icon type="user"/>{listModel.name}</span>}>
                                     {listModel.childList.map((detailModel) =>
@@ -173,7 +220,7 @@ class test3 extends Component {
                     </Sider>
                     <Layout style={{padding: '0 24px 24px'}}>
                         <Breadcrumb style={{margin: '16px 0'}}>
-                            <Breadcrumb.Item>Home {Store.get(storekeyname.personIfo).access_token}</Breadcrumb.Item>
+                            <Breadcrumb.Item>{this.state.iframeName} {Store.get(storekeyname.personIfo).access_token}</Breadcrumb.Item>
                         </Breadcrumb>
                         <Content
                             style={{
@@ -192,7 +239,8 @@ class test3 extends Component {
     }
 }
   
-const Main=withRouter(test3)
+const Main=withRouter(test3);
+
 class MainPage extends Component {
     render() {
         return (
@@ -200,6 +248,7 @@ class MainPage extends Component {
                 <main className='divSum'>
                     <Switch>
                         <Route exact path='/test3' component={Main}/>
+                        <Route path='/' component={Home}/>
                     </Switch>
                 </main>
             </BrowserRouter>

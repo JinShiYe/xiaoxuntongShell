@@ -16,20 +16,15 @@ import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
 import MainPage from './test3';
 import Store from './store';
 
-var sysName = '校讯通';
-var footerDescription1 = 'Copyright © 2004 - 2019 goldeneyes. All Rights Reserved';
-var footerDescription2 = '山东金视野 提供技术支持.  鲁ICP备09042772号-6';
-
-
 function Home(props) {
     return (<div className="login-wrapper">
-        <div className="sys-name-wrapper">{sysName}</div>
+        <div className="sys-name-wrapper">{storekeyname.sysName}</div>
         <Card className="login-card" title="欢迎登录">
             <WrappedNormalLoginForm/>
         </Card>
         <div className="footer-wrapper">
-            <div className="footer-description">{footerDescription1}</div>
-            <div className="footer-description">{footerDescription2}</div>
+            <div className="footer-description">{storekeyname.footerDescription1}</div>
+            <div className="footer-description">{storekeyname.footerDescription2}</div>
         </div>
     </div>);
 }
@@ -69,22 +64,6 @@ class NormalLoginForm extends React.Component {
     toggleLoading = () => {
         this.setState({loading: !this.state.loading});
     }
-// 	cancelPage = (e) => {
-// 		const confirm = Modal.confirm;
-// 		let taa = this.props.history;
-// 		confirm({
-// 				title: '是否取消回复',
-// 				// content: "取消",
-// 				okText: "确认",
-// 				cancelText: '取消',
-// 				onOk() {
-// 						taa.push('/pages/PageOne')
-// 				},
-// 				onCancel() {
-// 						e.preventDefault();
-// 				},
-// 		});
-// }
     submit = e => {
         e.preventDefault();
         console.log('tempm:' + MD5('123456'));
@@ -99,8 +78,6 @@ class NormalLoginForm extends React.Component {
                     console.log('res.data.encryptKey:' + res.data.encryptKey);
                     const tempPass = MD5(res.data.encryptKey + values.password).toString();
                     console.log('tempPass:' + tempPass);
-// 			  const w=window.open('about:blank');
-//   w.location.href="www.baidu.com";
                     var comData1 = {
                         password: tempPass, //秘钥+密码再MD5加密
                         platform_code: storekeyname.PLATFORMCODE, //平台代码
@@ -115,6 +92,7 @@ class NormalLoginForm extends React.Component {
                             Store.set(storekeyname.personIfo, res1.data);
                             let taa = this.props.history;
                             taa.push('/test3');
+                            window.postMessage(JSON.stringify(comData1),'/');
                         } else {
                             message.error(res1.msg);
                         }
@@ -163,35 +141,51 @@ class NormalLoginForm extends React.Component {
 
 const WrappedNormalLoginForm = withRouter(Form.create({name: 'normal_login'})(NormalLoginForm));
 
-const Main = () => (
-    <main className='divSum'>
-        <Switch>
-            <Route exact path='/' component={Home}/>
-            <Route path='/test3' component={MainPage}/>
-        </Switch>
-    </main>
-)
+window.addEventListener('message', function(messageEvent) {
+    var data = messageEvent.data;// messageEvent: {source, currentTarget, data}
+    console.info('message from child testjieshou1:', data);
+}, false);
 
-function Acc(props) {
-    return (
-        <div className='divSum'>
-            <Main/>
-        </div>
-    )
-}
-
-// const Roster = () => (
-//     <div>111111</div>
+// const Main = () => (
+//     <main className='divSum'>
+//         <Switch>
+//             <Route exact path='/' component={Home}/>
+//             <Route path='/test3' component={MainPage}/>
+//         </Switch>
+//     </main>
 // )
+
+// function Acc(props) {
+//     return (
+//         <div className='divSum'>
+//             <Main/>
+//         </div>
+//     )
+// }
 
 class App extends Component {
     render() {
         return (
             <BrowserRouter>
-                <Acc/>
+                <div className='divSum'>
+                    <Switch>
+                        <Route exact path='/' component={Home}/>
+                        <Route path='/test3' component={MainPage}/>
+                    </Switch>
+                </div>
             </BrowserRouter>
         );
     }
 }
+
+// class App extends Component {
+//     render() {
+//         return (
+//             <BrowserRouter>
+//                 <Acc/>
+//             </BrowserRouter>
+//         );
+//     }
+// }
 
 export default App;
