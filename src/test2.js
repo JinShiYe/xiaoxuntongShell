@@ -10,9 +10,9 @@ import storekeyname from './storeKeyName';
 import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
 import Store from './store';
 
-var sysName = '校讯通';
-var footerDescription1 = 'Copyright © 2004 - 2019 goldeneyes. All Rights Reserved';
-var footerDescription2 = '山东金视野 提供技术支持.  鲁ICP备09042772号-6';
+// var sysName = '校讯通';
+// var footerDescription1 = 'Copyright © 2004 - 2019 goldeneyes. All Rights Reserved';
+// var footerDescription2 = '山东金视野 提供技术支持.  鲁ICP备09042772号-6';
 
 
 function Home(props) {

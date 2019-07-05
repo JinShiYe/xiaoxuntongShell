@@ -93,6 +93,9 @@ html,body,#root,.divSum {
  .login-form-button {
     width: 100%;
   }
+  .jn-ajax-form {
+    padding-top: 150px;
+  }
 
   #components-layout-demo-top-side .logo {
     width: 120px;
@@ -101,3 +104,4 @@ html,body,#root,.divSum {
     margin: 16px 28px 16px 0;
     float: left;
   }
+  

@@ -4,7 +4,7 @@ import React, {Component} from 'react';
 // import {Button} from 'antd';
 import './App2.css';
 // import ReactDOM from 'react-dom';
-import {Form, Input, Icon, Button, Card, message} from 'antd';
+import {Form, Input, Icon, Button, Card, message,Row,Col,Modal} from 'antd';
 // 由于 antd 组件的默认文案是英文，所以需要修改为中文
 // import zhCN from 'antd/lib/locale-provider/zh_CN';
 import 'antd/dist/antd.css';
@@ -12,9 +12,10 @@ import 'antd/dist/antd.css';
 import { MD5} from 'crypto-js';
 import myUtils from './myUtils';
 import storekeyname from './storeKeyName';
-import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
+import {BrowserRouter,HashRouter, Route, Switch, withRouter,Link} from 'react-router-dom';
 import MainPage from './test3';
 import Store from './store';
+import Register from './register';
 
 function Home(props) {
     return (<div className="login-wrapper">
@@ -32,71 +33,68 @@ function Home(props) {
 class NormalLoginForm extends React.Component {
     state = {
         loading: false,
-        src: '/emsys/Admin/Public/verifyCode',
+        src: storekeyname.INTERFACEZENG+'Admin/Public/verifyCode',
         visible: false,
         isOk: false,
         msg: null
     };
     verifyCode = () => {
-        const src = '/emsys/Admin/Public/verifyCode?r=' + Math.random();
+        const src = storekeyname.INTERFACEZENG+'Admin/Public/verifyCode?r=' + Math.random();
         this.setState({src});
         this.props.form.setFieldsValue({
             verify_code: null
         });
     }
-    showMsg = (isOk, msg, millisecond, callback) => {
+    showModal = () => {
         this.setState({
-            isOk,
-            msg,
-            visible: true
+          visible: true,
         });
-
-        setTimeout(() => {
-            this.setState({
-                visible: false,
-                msg: null
-            });
-            if (typeof callback === 'function') {
-                callback();
-            }
-        }, millisecond);
-    }
-    toggleLoading = () => {
-        this.setState({loading: !this.state.loading});
-    }
+      }
+      handleOk = e => {
+        console.log(e);
+        this.setState({
+          visible: false,
+        });
+      };
+    
+      handleCancel = e => {
+        console.log(e);
+        this.setState({
+          visible: false,
+        });
+      };
     submit = e => {
         e.preventDefault();
-        console.log('tempm:' + MD5('123456'));
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                // alert('222props:'+JSON.stringify(values));
                 var params = {
                     platform_code: storekeyname.PLATFORMCODE
                 }
                 myUtils.post(0, 'api/login/getEncryptKey', params, res => {
-                    // alert('data:'+JSON.stringify(res));
-                    console.log('res.data.encryptKey:' + res.data.encryptKey);
-                    const tempPass = MD5(res.data.encryptKey + values.password).toString();
-                    console.log('tempPass:' + tempPass);
-                    var comData1 = {
-                        password: tempPass, //秘钥+密码再MD5加密
-                        platform_code: storekeyname.PLATFORMCODE, //平台代码
-                        app_code: storekeyname.APPCODE, //应用系统代码
-                        unit_code: '-1',//单位代码，如应用系统需限制本单位用户才允许登录，则传入单位代码，否则传“-1”
-                        login_name: values.login_name //登录名
-                    }
-                    console.log('comData11111111:' + JSON.stringify(comData1));
-                    myUtils.post(0, 'api/login', comData1, res1 => {
-                        console.log('333props:' + JSON.stringify(res1));
-                        if (res1.code === '0000') {
-                            Store.set(storekeyname.personIfo, res1.data);
-                            let taa = this.props.history;
-                            taa.push('/test3');
-                            window.postMessage(JSON.stringify(comData1),'/');
-                        } else {
-                            message.error(res1.msg);
+                    if (res.code === '0000') {
+                        const tempPass = MD5(res.data.encryptKey + values.password).toString();
+                        var comData1 = {
+                            password: tempPass, //秘钥+密码再MD5加密
+                            platform_code: storekeyname.PLATFORMCODE, //平台代码
+                            app_code: storekeyname.APPCODE, //应用系统代码
+                            unit_code: '-1',//单位代码，如应用系统需限制本单位用户才允许登录，则传入单位代码，否则传“-1”
+                            // verify_code:values.verify_code,//验证码，手机APP登录没有验证码则不传
+                            verify_code:'',//验证码，手机APP登录没有验证码则不传
+                            login_name: values.login_name //登录名
                         }
-                    });
+                        myUtils.post(0, 'api/login', comData1, res1 => {
+                            if (res1.code === '0000') {
+                                Store.set(storekeyname.personIfo, res1.data);
+                                let taa = this.props.history;
+                                taa.push('/test3');
+                                window.postMessage(JSON.stringify(comData1),'*');
+                            } else {
+                                message.error(res1.msg);
+                            }
+                        });
+                    } else {
+                        message.error(res.msg);
+                    }
                 });
             }
         });
@@ -120,8 +118,18 @@ class NormalLoginForm extends React.Component {
                         <Input type="password" autoComplete="off" prefix={<Icon type="lock"/>} placeholder="密码"/>
                     )}
                 </Form.Item>
-                {/* <Form.Item labelCol={{ span: 6}} wrapperCol={{ span: 18 }} label="验证码">
-		  {getFieldDecorator('verify_code', {
+                <Form.Item labelCol={{ span: 6}} wrapperCol={{ span: 18 }} label="验证码">
+                    <Row gutter={8}>
+                        <Col span={12}>{getFieldDecorator('verify_code', {
+                            rules: [{ required: true, message: '请输入验证码！' }],})(<Input className="verify-code-input" autoComplete="off" maxLength={4} placeholder="验证码" />)}
+                        </Col>
+                        <Col span={6}>
+                        <img className="verify-code" onClick={this.verifyCode} src={this.state.src} />
+                        </Col>
+                    </Row>
+                </Form.Item>
+                {/* <Form.Item>
+		            {getFieldDecorator('verify_code', {
 								rules: [{ required: true, message: '请输入验证码！' }]
 							})(
 								<Input className="verify-code-input" autoComplete="off" maxLength={4} placeholder="验证码" />
@@ -131,8 +139,20 @@ class NormalLoginForm extends React.Component {
                 <Form.Item>
                     <Button className="login-btn" type="primary" disabled={this.state.loading}
                             onClick={this.submit}>登录</Button>
-                    {/* <Link to='/pages/PageOne'><Button className="login-btn" type="primary" disabled={this.state.loading} htmlType="submit">登录</Button></Link> */}
-                    {/* <Button className="login-btn" type="primary" onClick={this.cancelPage}>登录22</Button> */}
+                    {/* <Link to='/register'><Button className="login-btn" type="primary" >登录</Button></Link> */}
+                    <a className="login-btn" type="primary" onClick={this.showModal}>注册</a>
+                    <Modal
+          title="注册页面"
+          visible={this.state.visible}
+          footer={null}
+          width={900}
+          maskClosable={false}
+          destroyOnClose={true}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+        >
+          <Register handleOk={this.handleOk}></Register>
+        </Modal>
                 </Form.Item>
             </Form>
         );
@@ -141,10 +161,10 @@ class NormalLoginForm extends React.Component {
 
 const WrappedNormalLoginForm = withRouter(Form.create({name: 'normal_login'})(NormalLoginForm));
 
-window.addEventListener('message', function(messageEvent) {
-    var data = messageEvent.data;// messageEvent: {source, currentTarget, data}
-    console.info('message from child testjieshou1:', data);
-}, false);
+// window.addEventListener('message', function(messageEvent) {
+//     var data = messageEvent.data;// messageEvent: {source, currentTarget, data}
+//     console.info('message from child testjieshou1:', data);
+// }, false);
 
 // const Main = () => (
 //     <main className='divSum'>

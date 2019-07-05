@@ -1,5 +1,6 @@
 import axios from "axios";
 import storekeyname from "./storeKeyName";
+import {message} from 'antd';
 import {
     HmacSHA1,
     enc
@@ -43,6 +44,7 @@ const myUtils = {
         }).catch(function (error) {
             // console.log('error:'+requestUrl+',data:'+JSON.stringify(error));
             console.log(error);
+            message.error(error);
             // callback(error);
         });
     },

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm} from 'antd';
+import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm,Modal} from 'antd';
 import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
 import './App2.css';
 import storekeyname from './storeKeyName';
@@ -37,7 +37,7 @@ class MyIframe extends  Component{
             <Iframe src={this.url}
             frameBorder='0'
                     width="100%"
-                    height="500px"
+                    height="700"
                     id="myId"
                     onLoad={this.changeWindow}
                     allowFullScreen={true}
@@ -82,11 +82,7 @@ class MyIframe extends  Component{
 //     </Menu>
 //   );
 
-window.addEventListener('message', function(ev) {
-    // if (ev.source !== window.parent) {return;}
-    var data = ev.data;
-    console.info('message from parent test3:', data);
-}, false);
+
 
 let fra=null;
 class test3 extends Component {
@@ -97,32 +93,48 @@ class test3 extends Component {
         };
     }
     componentDidMount() {
+        window.addEventListener('message', function(ev) {
+            // if (ev.source !== window.parent) {return;}
+            console.log('ev.source:'+ev.source);
+            console.log('window.parent:'+window.parent);
+            var data = ev.data;
+            console.info('message from parent test3:', data);
+        }, false);
         var comData1 = {
             platform_code: storekeyname.PLATFORMCODE, //平台代码
             app_code: storekeyname.APPCODE, //应用系统代码
             access_token: Store.get(storekeyname.personIfo).access_token //用户令牌
         }
-        console.log('comData11111111:' + JSON.stringify(comData1));
+        let that =this;
+        // console.log('comData11111111:' + JSON.stringify(comData1));
         myUtils.post(0, 'api/acl/menu', comData1, res1 => {
             if (res1.code === '0000') {
-                for (var index = 0; index < res1.data.length; index++) {
-                    const element = res1.data[index];
-                    for (let a = 0; a < element.childList.length; a++) {
-                        const tempM0 = element.childList[a];
-                        if (!tempM0.childList) {
-                            tempM0.childList = [];
-                        } 
-                        for (let b = 0; b < tempM0.childList.length; b++) {
-                            const tempM1 = tempM0.childList[b];
-                            if (!tempM1.childList) {
-                                tempM1.childList = [];
+                if (res1.data.length>0) {
+                    for (var index = 0; index < res1.data.length; index++) {
+                        const element = res1.data[index];
+                        for (let a = 0; a < element.childList.length; a++) {
+                            const tempM0 = element.childList[a];
+                            if (!tempM0.childList) {
+                                tempM0.childList = [];
                             } 
+                            for (let b = 0; b < tempM0.childList.length; b++) {
+                                const tempM1 = tempM0.childList[b];
+                                if (!tempM1.childList) {
+                                    tempM1.childList = [];
+                                } 
+                            }
                         }
                     }
+                    this.setState({
+                        menusList: res1.data[0].childList
+                      });
+                } else {
+                    const modal = Modal.error({
+                        title: '当前账号无权限',
+                        onOk:that.confirm()
+                      });
+                      
                 }
-                this.setState({
-                    menusList: res1.data[0].childList
-                  });
             } else {
                 message.error(res1.msg);
             }
@@ -135,37 +147,61 @@ class test3 extends Component {
             type:"iframe"
         })
         let that=this;
-        setTimeout(function () {
+        // setTimeout(function () {
             console.log(fra)
             for (let index = 0; index < that.state.menusList.length; index++) {
                 const element = that.state.menusList[index];
-                for (let a = 0; a < element.childList.length; a++) {
-                    const element1 = element.childList[a];
-                    console.log('e.key:'+e.key+',element1.id:'+element1.id);
-                    if (e.key.toString() === 'item1') {
-                        fra.setUrl('https://www.baidu.com');
-                        that.setState({
-                            iframeName:'首页'
-                        });
-                    }else if (e.key.toString() === element1.id.toString()) {
-                        let url = element1.url + '?token='+ Store.get(storekeyname.personIfo).access_token;
-                        console.log('url:'+url);
-                        fra.setUrl(url);
-                        // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                        window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
-                        // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                        that.setState({
-                            iframeName:element1.name
-                        });
+                // console.log('element:'+JSON.stringify(element));
+                if (element.url == null) {
+                    for (let a = 0; a < element.childList.length; a++) {
+                        const element1 = element.childList[a];
+                        console.log('e.key:'+e.key+',element1.id:'+element1.id);
+                        if (e.key.toString() === 'item1') {
+                            fra.setUrl('https://www.baidu.com');
+                            that.setState({
+                                iframeName:'默认百度首页'
+                            });
+                        }else if (e.key.toString() === element1.id.toString()) {
+                            let url = element1.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
+                            console.log('url:'+url);
+                            fra.setUrl(url);
+                            
+                            setTimeout(() => {
+                                console.log('settimeout1111');
+                                let ifm= document.getElementById("myId");
+                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                                // window.postMessage('123','*');
+                                // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                            }, 500);
+                            // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),storekeyname.noticeUrl);
+                            // window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
+                            // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                            that.setState({
+                                iframeName:element1.name
+                            });
+                        }
                     }
+                } else if(e.key.toString() === element.id.toString()){
+                    let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
+                            console.log('url:'+url);
+                            fra.setUrl(url);
+                            
+                            setTimeout(() => {
+                                console.log('settimeout1111');
+                                let ifm= document.getElementById("myId");
+                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                            }, 2000);
+                            that.setState({
+                                iframeName:element.name
+                            });
                 }
+                
             }
-        },500)
+        // },500)
     }
     confirm=e=>{
         console.log(e);
         Store.set(storekeyname.personIfo, {});
-        // message.success('Click on Yes');
         let taa = this.props.history;
         taa.push('/');
       }
@@ -191,21 +227,41 @@ class test3 extends Component {
         }else if(type=="modifyPW"){
             componment=<App11 ref={(node)=>fra=node}/>
         }
+        // console.log('storekeyname.personIfo:'+JSON.stringify(Store.get(storekeyname.personIfo)));
+        var list = (array) => {
+            // console.log('array:'+JSON.stringify(array));
+            // array = this.state.menusList;
+            var res = [];
+            for(var i = 0; i < array.length; i++) {
+                var listModel = array[i];
+                // console.log('listModel:'+JSON.stringify(listModel));
+                if (listModel.url==null) {
+                    res.push(<SubMenu key={listModel.id} title={<span><Icon type="user"/>{listModel.name}</span>}>
+                    {listModel.childList.map((detailModel) =>
+                        <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
+                    )}
+             </SubMenu>)
+                } else {
+                    res.push(<Menu.Item key={listModel.id}><span><Icon type="user"/>{listModel.name}</span></Menu.Item>)
+                }
+            }
+            return res
+          }
         return (
             <Layout style={{height:'100%'}}>
                 <Header className="header">
                     <div className="logo"/>
-                       <Avatar size="large" style={{marginTop: '-10px'}} src={Store.get(storekeyname.personIfo).user.img_url}/>
+                       <Avatar size="large" style={{marginTop: '-10px'}} src={Store.get(storekeyname.personIfo).user.img_url+'?'+Math}/>
                        <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
                        <span style={{float:'right'}}> 
-                            <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={Store.get(storekeyname.personIfo).user.img_url}/>
+                            <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={Store.get(storekeyname.personIfo).user.img_url+'?'+Math}/>
                             <Dropdown overlay={<Menu onClick={this.onClickModify}>
                                                     <Menu.Item key="modifyPW">修改密码</Menu.Item>
                                                     <Menu.Item key="return">
                                                         <Popconfirm title="确认退出吗？" onConfirm={this.confirm} onCancel={this.cancel} okText="是" cancelText="否"><a href="#">退出</a></Popconfirm>
                                                     </Menu.Item>
                                                 </Menu>}>
-                                <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}} href="#">欢迎，{Store.get(storekeyname.personIfo).user.name} 
+                                <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}}>欢迎，{Store.get(storekeyname.personIfo).user.name} 
                                     <Icon type="down" />
                                 </a>
                             </Dropdown>
@@ -224,18 +280,19 @@ class test3 extends Component {
                             {/* <SubMenu key='sub1' title={<span><Icon type="user"/>首页</span>}> */}
                                 <Menu.Item key='item1'><span><Icon type="user"/>首页</span></Menu.Item>
                              {/* </SubMenu> */}
-                            {this.state.menusList.map((listModel) =>
+                             {list(this.state.menusList)}
+                            {/* {this.state.menusList.map((listModel) =>
                                 <SubMenu key={listModel.id} title={<span><Icon type="user"/>{listModel.name}</span>}>
                                     {listModel.childList.map((detailModel) =>
                                         <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
                                     )}
                              </SubMenu>
-                            )}
+                            )} */}
                         </Menu>
                     </Sider>
                     <Layout style={{padding: '0 24px 24px'}}>
                         <Breadcrumb style={{margin: '16px 0'}}>
-                            <Breadcrumb.Item>{this.state.iframeName} {Store.get(storekeyname.personIfo).access_token}</Breadcrumb.Item>
+                            <Breadcrumb.Item>{this.state.iframeName}</Breadcrumb.Item>
                         </Breadcrumb>
                         <Content
                             style={{

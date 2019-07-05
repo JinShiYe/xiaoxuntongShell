@@ -13,6 +13,7 @@ const storeKeyName={
     sysName : '校讯通',
     footerDescription1 : 'Copyright © 2004 - 2019 goldeneyes. All Rights Reserved',
     footerDescription2 : '山东金视野 提供技术支持.  鲁ICP备09042772号-6',
+    noticeUrl:'http://192.168.1.203:3000',//学校通知urlz
 };
 switch (storeKeyName.qiniuSpacePrivate) {
     case true:
