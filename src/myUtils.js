@@ -1,6 +1,7 @@
 import axios from "axios";
 import storekeyname from "./storeKeyName";
 import {message} from 'antd';
+import uuid from 'node-uuid';
 import {
     HmacSHA1,
     enc
@@ -61,6 +62,9 @@ const myUtils = {
         //拼接登录需要的签名
         var signTemp = arr1.sort().join('&');
         return signTemp;
-    }
+    },
+    uid: () => {
+        return uuid.v1();
+    },
 };
 export default myUtils;

@@ -8,6 +8,7 @@ import Iframe from 'react-iframe';
 import myUtils from './myUtils';
 import Home from './test1';
 import App11 from './test2';
+import ModifyHeadImg from "./modify_headimage/head_image";
 
 var tempV = Store.get(storekeyname.personIfo);
 console.log('tempV:' + JSON.stringify(tempV));
@@ -59,12 +60,12 @@ class MyIframe extends  Component{
 //     let taa = this.props.history;
 //     taa.push('/test1');
 //   }
-  
+
 //   function cancel(e) {
 //     console.log(e);
 //     message.error('Click on No');
 //   }
-  
+
 //   const menu = (
 //     <Menu onClick={onClick}>
 //       <Menu.Item key="modifyPW">修改密码</Menu.Item>
@@ -88,7 +89,10 @@ let fra=null;
 class test3 extends Component {
     constructor(props) {
         super(props);
-        this.state = {menusList:[],iframeName:'首页',
+        this.state = {
+            headImg:Store.get(storekeyname.personIfo).user.img_url+'?'+Math,//头像
+            menusList:[],
+            iframeName:'首页',
             type:"iframe",
         };
     }
@@ -100,6 +104,7 @@ class test3 extends Component {
             var data = ev.data;
             console.info('message from parent test3:', data);
         }, false);
+
         var comData1 = {
             platform_code: storekeyname.PLATFORMCODE, //平台代码
             app_code: storekeyname.APPCODE, //应用系统代码
@@ -116,12 +121,12 @@ class test3 extends Component {
                             const tempM0 = element.childList[a];
                             if (!tempM0.childList) {
                                 tempM0.childList = [];
-                            } 
+                            }
                             for (let b = 0; b < tempM0.childList.length; b++) {
                                 const tempM1 = tempM0.childList[b];
                                 if (!tempM1.childList) {
                                     tempM1.childList = [];
-                                } 
+                                }
                             }
                         }
                     }
@@ -133,7 +138,7 @@ class test3 extends Component {
                         title: '当前账号无权限',
                         onOk:that.confirm()
                       });
-                      
+
                 }
             } else {
                 message.error(res1.msg);
@@ -165,7 +170,7 @@ class test3 extends Component {
                             let url = element1.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
                             console.log('url:'+url);
                             fra.setUrl(url);
-                            
+
                             setTimeout(() => {
                                 console.log('settimeout1111');
                                 let ifm= document.getElementById("myId");
@@ -185,7 +190,7 @@ class test3 extends Component {
                     let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
                             console.log('url:'+url);
                             fra.setUrl(url);
-                            
+
                             setTimeout(() => {
                                 console.log('settimeout1111');
                                 let ifm= document.getElementById("myId");
@@ -195,7 +200,7 @@ class test3 extends Component {
                                 iframeName:element.name
                             });
                 }
-                
+
             }
         // },500)
     }
@@ -205,18 +210,35 @@ class test3 extends Component {
         let taa = this.props.history;
         taa.push('/');
       }
-      
+
       cancel=e=> {
         console.log(e);
         // message.error('Click on No');
       }
       onClickModify = ({ key }) => {
-        console.log('key:'+key);
-        if (key === 'modifyPW') {
-            this.setState({
-                type:"modifyPW"
-            })
-        }
+          console.log('key:'+key);
+          if (key === 'iframe') {
+              this.setState({
+                  type:"iframe"
+              })
+          }
+         if (key === 'modifyPW') {
+                this.setState({
+                    type:"modifyPW"
+                })
+         }
+          if (key === 'modifyHeadImg') {
+              this.setState({
+                  type:"modifyHeadImg"
+              })
+          }
+      }
+
+      onImgChange=(url)=>{
+          this.setState({
+              headImg:url+'?imgid='+Math,
+              type:"iframe"
+          })
       }
 
     render() {
@@ -226,6 +248,8 @@ class test3 extends Component {
             componment=<MyIframe ref={(node)=>fra=node}/>;
         }else if(type=="modifyPW"){
             componment=<App11 ref={(node)=>fra=node}/>
+        }else if(type=="modifyHeadImg"){
+            componment=<ModifyHeadImg ref={(node)=>fra=node} onImgChange={this.onImgChange}/>
         }
         // console.log('storekeyname.personIfo:'+JSON.stringify(Store.get(storekeyname.personIfo)));
         var list = (array) => {
@@ -251,22 +275,24 @@ class test3 extends Component {
             <Layout style={{height:'100%'}}>
                 <Header className="header">
                     <div className="logo"/>
-                       <Avatar size="large" style={{marginTop: '-10px'}} src={Store.get(storekeyname.personIfo).user.img_url+'?'+Math}/>
+                       <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/>
                        <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
-                       <span style={{float:'right'}}> 
-                            <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={Store.get(storekeyname.personIfo).user.img_url+'?'+Math}/>
-                            <Dropdown overlay={<Menu onClick={this.onClickModify}>
-                                                    <Menu.Item key="modifyPW">修改密码</Menu.Item>
-                                                    <Menu.Item key="return">
-                                                        <Popconfirm title="确认退出吗？" onConfirm={this.confirm} onCancel={this.cancel} okText="是" cancelText="否"><a href="#">退出</a></Popconfirm>
-                                                    </Menu.Item>
-                                                </Menu>}>
-                                <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}}>欢迎，{Store.get(storekeyname.personIfo).user.name} 
+                       <span style={{float:'right'}}>
+                            <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={this.state.headImg}/>
+                            <Dropdown overlay={
+                                <Menu onClick={this.onClickModify}>
+                                    <Menu.Item key="modifyHeadImg">上传头像</Menu.Item>
+                                    <Menu.Item key="modifyPW">修改密码</Menu.Item>
+                                    <Menu.Item key="return">
+                                            <Popconfirm title="确认退出吗？" onConfirm={this.confirm} onCancel={this.cancel} okText="是" cancelText="否"><a href="#">退出</a></Popconfirm>
+                                    </Menu.Item>
+                                </Menu>}>
+                                <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}}>欢迎，{Store.get(storekeyname.personIfo).user.name}
                                     <Icon type="down" />
                                 </a>
                             </Dropdown>
                        </span>
-                       
+
                 </Header>
                 <Layout>
                     <Sider width={200} style={{background: '#fff'}}>
@@ -310,7 +336,7 @@ class test3 extends Component {
         )
     }
 }
-  
+
 const Main=withRouter(test3);
 
 class MainPage extends Component {
