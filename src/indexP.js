@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm,Modal} from 'antd';
+import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm,Modal,Row,Col} from 'antd';
 import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
 import './App2.css';
 import storekeyname from './storeKeyName';
@@ -275,23 +275,42 @@ class indexP extends Component {
             <Layout style={{height:'100%'}}>
                 <Header className="header">
                     <div className="logo"/>
-                       <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/>
-                       <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
-                       <span style={{float:'right'}}>
-                            <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={this.state.headImg}/>
-                            <Dropdown overlay={
-                                <Menu onClick={this.onClickModify}>
-                                    <Menu.Item key="modifyHeadImg">上传头像</Menu.Item>
-                                    <Menu.Item key="modifyPW">修改密码</Menu.Item>
-                                    <Menu.Item key="return">
+                    <Row>
+                        <Col span={5}>
+                            <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/>
+                            <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
+                        </Col>
+                        <Col span={14}>
+                            <Menu
+                                theme="dark"
+                                mode="horizontal"
+                                defaultSelectedKeys={['2']}
+                                width='200px'
+                                style={{ lineHeight: '64px',whiteSpace:'nowrap' }}
+                            >
+                                <Menu.Item key="1">nav 1</Menu.Item>
+                                <Menu.Item key="2">nav 2</Menu.Item>
+                                <Menu.Item key="3">nav 3</Menu.Item>
+                            </Menu>
+                        </Col>
+                        <Col span={5}>
+                            <span style={{float:'right'}}>
+                                <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={this.state.headImg}/>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onClickModify}>
+                                        <Menu.Item key="modifyHeadImg">上传头像</Menu.Item>
+                                        <Menu.Item key="modifyPW">修改密码</Menu.Item>
+                                        <Menu.Item key="return">
                                             <Popconfirm title="确认退出吗？" onConfirm={this.confirm} onCancel={this.cancel} okText="是" cancelText="否"><a href="#">退出</a></Popconfirm>
-                                    </Menu.Item>
-                                </Menu>}>
-                                <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}}>欢迎，{Store.get(storekeyname.personIfo).user.name}
-                                    <Icon type="down" />
-                                </a>
-                            </Dropdown>
-                       </span>
+                                        </Menu.Item>
+                                    </Menu>}>
+                                    <a className="ant-dropdown-link" style={{color:'white',marginLeft:'10px'}}>欢迎，{Store.get(storekeyname.personIfo).user.name}
+                                        <Icon type="down" />
+                                    </a>
+                                </Dropdown>
+                            </span>
+                       </Col>
+                    </Row>
 
                 </Header>
                 <Layout>
