@@ -10,7 +10,7 @@ console.log('tempV:'+JSON.stringify(tempV));
 const { SubMenu } = Menu;
 const { Header, Content, Footer, Sider } = Layout;
 
-class test3 extends Component{
+class indexP extends Component{
     render(){
         return(
             <Layout>
@@ -93,4 +93,4 @@ class test3 extends Component{
         )
     }
 }
-export default test3;
+export default indexP;

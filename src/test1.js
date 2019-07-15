@@ -13,7 +13,7 @@ import { MD5} from 'crypto-js';
 import myUtils from './myUtils';
 import storekeyname from './storeKeyName';
 import {BrowserRouter,HashRouter, Route, Switch, withRouter,Link} from 'react-router-dom';
-import MainPage from './test3';
+import MainPage from './indexP';
 import Store from './store';
 import Register from './register';
 
@@ -86,7 +86,7 @@ class NormalLoginForm extends React.Component {
                             if (res1.code === '0000') {
                                 Store.set(storekeyname.personIfo, res1.data);
                                 let taa = this.props.history;
-                                taa.push('/test3');
+                                taa.push('/indexP');
                                 window.postMessage(JSON.stringify(comData1),'*');
                             } else {
                                 message.error(res1.msg);
@@ -170,7 +170,7 @@ const WrappedNormalLoginForm = withRouter(Form.create({name: 'normal_login'})(No
 //     <main className='divSum'>
 //         <Switch>
 //             <Route exact path='/' component={Home}/>
-//             <Route path='/test3' component={MainPage}/>
+//             <Route path='/indexP' component={MainPage}/>
 //         </Switch>
 //     </main>
 // )
@@ -190,7 +190,7 @@ class App extends Component {
                 <div className='divSum'>
                     <Switch>
                         <Route exact path='/' component={Home}/>
-                        <Route path='/test3' component={MainPage}/>
+                        <Route path='/indexP' component={MainPage}/>
                     </Switch>
                 </div>
             </HashRouter>

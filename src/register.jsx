@@ -12,7 +12,7 @@ import { MD5} from 'crypto-js';
 import myUtils from './myUtils';
 import storekeyname from './storeKeyName';
 import {BrowserRouter,HashRouter, Route, Switch, withRouter,Link} from 'react-router-dom';
-import MainPage from './test3';
+import MainPage from './indexP';
 import Store from './store';
 const DemoBox = props => <p className={`height-${props.value}`}>{props.children}</p>;
 

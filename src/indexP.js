@@ -51,7 +51,7 @@ class MyIframe extends  Component{
 // const onClick = ({ key }) => {
 //     console.log('key:'+key);
 //     if (key === 'modifyPW') {
-//         fra.setUrl('http://localhost:3000/test3');
+//         fra.setUrl('http://localhost:3000/indexP');
 //     }
 //   };
 //   function confirm(e) {
@@ -86,7 +86,7 @@ class MyIframe extends  Component{
 
 
 let fra=null;
-class test3 extends Component {
+class indexP extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -102,7 +102,7 @@ class test3 extends Component {
             console.log('ev.source:'+ev.source);
             console.log('window.parent:'+window.parent);
             var data = ev.data;
-            console.info('message from parent test3:', data);
+            console.info('message from parent indexP:', data);
         }, false);
 
         var comData1 = {
@@ -260,13 +260,13 @@ class test3 extends Component {
                 var listModel = array[i];
                 // console.log('listModel:'+JSON.stringify(listModel));
                 if (listModel.url==null) {
-                    res.push(<SubMenu key={listModel.id} title={<span><Icon type="user"/>{listModel.name}</span>}>
+                    res.push(<SubMenu key={listModel.id} title={<span><Icon type="desktop"/>{listModel.name}</span>}>
                     {listModel.childList.map((detailModel) =>
                         <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
                     )}
              </SubMenu>)
                 } else {
-                    res.push(<Menu.Item key={listModel.id}><span><Icon type="user"/>{listModel.name}</span></Menu.Item>)
+                    res.push(<Menu.Item key={listModel.id}><span><Icon type="desktop"/>{listModel.name}</span></Menu.Item>)
                 }
             }
             return res
@@ -301,14 +301,16 @@ class test3 extends Component {
                             defaultSelectedKeys={['item1']}
                             defaultOpenKeys={['sub1']}
                             style={{height: '100%', borderRight: 0}}
+                            mode="inline"
+                            theme="dark"
                             onClick={this.handleClick}
                         >
-                            {/* <SubMenu key='sub1' title={<span><Icon type="user"/>首页</span>}> */}
-                                <Menu.Item key='item1'><span><Icon type="user"/>首页</span></Menu.Item>
+                            {/* <SubMenu key='sub1' title={<span><Icon type="desktop"/>首页</span>}> */}
+                                <Menu.Item key='item1'><span><Icon type="desktop"/>首页</span></Menu.Item>
                              {/* </SubMenu> */}
                              {list(this.state.menusList)}
                             {/* {this.state.menusList.map((listModel) =>
-                                <SubMenu key={listModel.id} title={<span><Icon type="user"/>{listModel.name}</span>}>
+                                <SubMenu key={listModel.id} title={<span><Icon type="desktop"/>{listModel.name}</span>}>
                                     {listModel.childList.map((detailModel) =>
                                         <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
                                     )}
@@ -337,7 +339,7 @@ class test3 extends Component {
     }
 }
 
-const Main=withRouter(test3);
+const Main=withRouter(indexP);
 
 class MainPage extends Component {
     render() {
@@ -345,7 +347,7 @@ class MainPage extends Component {
             <HashRouter>
                 <main className='divSum'>
                     <Switch>
-                        <Route exact path='/test3' component={Main}/>
+                        <Route exact path='/indexP' component={Main}/>
                         <Route path='/' component={Home}/>
                     </Switch>
                 </main>
