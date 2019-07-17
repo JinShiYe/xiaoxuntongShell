@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm,Modal} from 'antd';
+import {Layout, Menu, Breadcrumb, Icon, Avatar,message, Dropdown, Popconfirm,Modal,Tabs} from 'antd';
 import {BrowserRouter,HashRouter, Route, Switch, withRouter} from 'react-router-dom';
 import './App2.css';
 import storekeyname from './storeKeyName';
@@ -15,6 +15,7 @@ console.log('tempV:' + JSON.stringify(tempV));
 
 const {SubMenu} = Menu;
 const {Header, Content, Sider} = Layout;
+const { TabPane } = Tabs;
 
 class MyIframe extends  Component{
     constructor(props){
@@ -89,11 +90,17 @@ let fra=null;
 class indexP extends Component {
     constructor(props) {
         super(props);
+        this.newTabIndex = 0;
+        const panes = [
+            { title: 'Tab 1', content: 'Content of Tab Pane 1', key: '1' }
+          ];
         this.state = {
             headImg:Store.get(storekeyname.personIfo).user.img_url+'?'+Math,//头像
             menusList:[],
             iframeName:'首页',
             type:"iframe",
+            activeKey: panes[0].key,
+            panes,
         };
     }
     componentDidMount() {
@@ -162,43 +169,46 @@ class indexP extends Component {
                         const element1 = element.childList[a];
                         console.log('e.key:'+e.key+',element1.id:'+element1.id);
                         if (e.key.toString() === 'item1') {
-                            fra.setUrl('https://www.baidu.com');
-                            that.setState({
-                                iframeName:'默认百度首页'
-                            });
+                            that.add('默认百度首页','baidushouye');
+                            // fra.setUrl('https://www.baidu.com');
+                            // that.setState({
+                            //     iframeName:'默认百度首页'
+                            // });
                         }else if (e.key.toString() === element1.id.toString()) {
-                            let url = element1.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
-                            console.log('url:'+url);
-                            fra.setUrl(url);
+                            that.add(element1.name,element1.url);
+                            // let url = element1.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
+                            // console.log('url:'+url);
+                            // fra.setUrl(url);
 
-                            setTimeout(() => {
-                                console.log('settimeout1111');
-                                let ifm= document.getElementById("myId");
-                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                            // setTimeout(() => {
+                            //     console.log('settimeout1111');
+                            //     let ifm= document.getElementById("myId");
+                            //     ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
                                 // window.postMessage('123','*');
                                 // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
-                            }, 500);
+                            // }, 500);
                             // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),storekeyname.noticeUrl);
                             // window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
                             // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                            that.setState({
-                                iframeName:element1.name
-                            });
+                            // that.setState({
+                            //     iframeName:element1.name
+                            // });
                         }
                     }
                 } else if(e.key.toString() === element.id.toString()){
-                    let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
-                            console.log('url:'+url);
-                            fra.setUrl(url);
+                    that.add(element.name,element.url);
+                    // let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
+                    //         console.log('url:'+url);
+                    //         fra.setUrl(url);
 
-                            setTimeout(() => {
-                                console.log('settimeout1111');
-                                let ifm= document.getElementById("myId");
-                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
-                            }, 2000);
-                            that.setState({
-                                iframeName:element.name
-                            });
+                    //         setTimeout(() => {
+                    //             console.log('settimeout1111');
+                    //             let ifm= document.getElementById("myId");
+                    //             ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                    //         }, 2000);
+                    //         that.setState({
+                    //             iframeName:element.name
+                    //         });
                 }
 
             }
@@ -240,6 +250,39 @@ class indexP extends Component {
               type:"iframe"
           })
       }
+      onChange = activeKey => {
+        this.setState({ activeKey });
+      };
+    
+      onEdit = (targetKey, action) => {
+        this[action](targetKey);
+      };
+    
+      add = (title,content) => {
+        const { panes } = this.state;
+        const activeKey = `newTab${this.newTabIndex++}`;
+        panes.push({ title: title, content: content+activeKey, key: activeKey });
+        this.setState({ panes, activeKey });
+      };
+    
+      remove = targetKey => {
+        let { activeKey } = this.state;
+        let lastIndex;
+        this.state.panes.forEach((pane, i) => {
+          if (pane.key === targetKey) {
+            lastIndex = i - 1;
+          }
+        });
+        const panes = this.state.panes.filter(pane => pane.key !== targetKey);
+        if (panes.length && activeKey === targetKey) {
+          if (lastIndex >= 0) {
+            activeKey = panes[lastIndex].key;
+          } else {
+            activeKey = panes[0].key;
+          }
+        }
+        this.setState({ panes, activeKey });
+      };
 
     render() {
         let type=this.state.type;
@@ -319,19 +362,32 @@ class indexP extends Component {
                         </Menu>
                     </Sider>
                     <Layout style={{padding: '0 24px 24px'}}>
-                        <Breadcrumb style={{margin: '16px 0'}}>
-                            <Breadcrumb.Item>{this.state.iframeName}</Breadcrumb.Item>
-                        </Breadcrumb>
-                        <Content
-                            style={{
-                                background: '#fff',
-                                padding: 24,
-                                margin: 0,
-                                minHeight: 280,
-                            }}
-                        >
+                    <Tabs
+                        hideAdd
+                        onChange={this.onChange}
+                        activeKey={this.state.activeKey}
+                        type="editable-card"
+                        onEdit={this.onEdit}
+                    >
+                    {this.state.panes.map(pane => (
+                        <TabPane tab={pane.title} key={pane.key}>
+                        {pane.content}
+                            {/* <Breadcrumb style={{margin: '16px 0'}}>
+                                <Breadcrumb.Item>{this.state.iframeName}</Breadcrumb.Item>
+                            </Breadcrumb>
+                            <Content
+                                style={{
+                                    background: '#fff',
+                                    padding: 24,
+                                    margin: 0,
+                                    minHeight: 280,
+                                }}
+                            >
                             {componment}
-                        </Content>
+                        </Content> */}
+                        </TabPane>
+                    ))}
+                    </Tabs>
                     </Layout>
                 </Layout>
             </Layout>
