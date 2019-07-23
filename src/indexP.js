@@ -11,6 +11,7 @@ import Home from './test1';
 import App11 from './test2';
 import ModifyHeadImg from "./modify_headimage/head_image";
 import ChangeSchool from "./changeSchool";
+import ChangePlat from "./changePlat";
 
 var tempV = Store.get(storekeyname.personIfo);
 console.log('tempV:' + JSON.stringify(tempV));
@@ -28,9 +29,13 @@ class MyIframe extends  Component{
         console.log(this.url)
         document.getElementById('myId').src = this.url;
     }
-    // componentDidMount() {
-    //     window.addEventListener('resize', this.changeWindow);
-    // }
+    componentDidMount() {
+        // window.addEventListener('resize', this.changeWindow);
+        this.props.onRef(this)
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.props.onRef(this)
+    }
     // changeWindow=()=>{
     //     let ifm= document.getElementById("myId");
     //     ifm.height=(document.documentElement.clientHeight-200);
@@ -40,7 +45,7 @@ class MyIframe extends  Component{
             <Iframe src={this.url}
             frameBorder='0'
                     width="100%"
-                    height="700"
+                    height="100%"
                     id="myId"
                     onLoad={this.changeWindow}
                     allowFullScreen={true}
@@ -50,44 +55,7 @@ class MyIframe extends  Component{
         )
     }
 }
-// const onClick = ({ key }) => {
-//     console.log('key:'+key);
-//     if (key === 'modifyPW') {
-//         fra.setUrl('http://localhost:3000/indexP');
-//     }
-//   };
-//   function confirm(e) {
-//     console.log(e);
-//     message.success('Click on Yes');
-//     let taa = this.props.history;
-//     taa.push('/test1');
-//   }
 
-//   function cancel(e) {
-//     console.log(e);
-//     message.error('Click on No');
-//   }
-
-//   const menu = (
-//     <Menu onClick={onClick}>
-//       <Menu.Item key="modifyPW">修改密码</Menu.Item>
-//       <Menu.Item key="return">
-//       <Popconfirm
-//     title="确认退出吗？"
-//     onConfirm={confirm}
-//     onCancel={cancel}
-//     okText="是"
-//     cancelText="否"
-//   >
-//     <a href="#">退出</a>
-//   </Popconfirm>
-//       </Menu.Item>
-//     </Menu>
-//   );
-
-
-
-let fra=null;
 class indexP extends Component {
     constructor(props) {
         super(props);
@@ -101,6 +69,7 @@ class indexP extends Component {
             type:"iframe",
             MenuKey:'1',
             detailMenuKey:'1',
+            url:'https://www.baidu.com',
         };
     }
     componentDidMount() {
@@ -162,11 +131,12 @@ class indexP extends Component {
                 this.setState({
                     detailList: element.childList
                 });
-                fra.setUrl('https://www.baidu.com');
+                // this.child.setUrl('https://www.baidu.com');
                 this.setState({
                     iframeName:'默认百度首页',
                     MenuKey:element.id.toString(),
-                    detailMenuKey:'item1'
+                    detailMenuKey:'item1',
+                    url:'https://www.baidu.com'
                 });
             }
         }
@@ -179,14 +149,18 @@ class indexP extends Component {
         });
         this.clickMenus(e.key,this.state.detailList);
     }
+    onRef=(ref)=>{
+        ref.setUrl(this.state.url)
+    }
     clickMenus = (key,list)=>{
         for (let index = 0; index < list.length; index++) {
             const element = list[index];
             if (key.toString() === 'item1') {
-                fra.setUrl('https://www.baidu.com');
+                // this.child.setUrl('https://www.baidu.com');
                 this.setState({
                     iframeName:'默认百度首页',
-                    detailMenuKey:'item1'
+                    detailMenuKey:'item1',
+                    url:'https://www.baidu.com'
                 });
             }else if (key.toString() === element.id.toString()) {
                 if (element.url == null) {
@@ -194,7 +168,7 @@ class indexP extends Component {
                 } else {
                     let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
                     console.log('url:'+url);
-                    fra.setUrl(url);
+                    // this.child.setUrl(url);
                     setTimeout(() => {
                         console.log('settimeout1111');
                         let ifm= document.getElementById("myId");
@@ -207,7 +181,8 @@ class indexP extends Component {
                     // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
                     this.setState({
                         iframeName:element.name,
-                        detailMenuKey:element.id.toString()
+                        detailMenuKey:element.id.toString(),
+                        url
                     });
                 }
             }else{
@@ -244,6 +219,12 @@ class indexP extends Component {
               })
           }
       }
+      changePlat = ({key}) =>{
+        console.log('changePlat.key:'+key);
+        this.setState({
+            type:"changePlat"
+        })
+      }
       changeSchool = ({key}) =>{
         console.log('changeSchool.key:'+key);
         this.setState({
@@ -278,22 +259,26 @@ class indexP extends Component {
         let type=this.state.type;
         let componment=null;
         if(type=="iframe"){
-            componment=<MyIframe ref={(node)=>fra=node}/>;
+            componment=<MyIframe onRef={this.onRef}/>;
         }else if(type=="modifyPW"){
-            componment=<App11 ref={(node)=>fra=node}/>
+            componment=<App11 />
         }else if(type=="modifyHeadImg"){
-            componment=<ModifyHeadImg ref={(node)=>fra=node} onImgChange={this.onImgChange}/>
+            componment=<ModifyHeadImg  onImgChange={this.onImgChange}/>
         }else if(type=="changeSchool"){
-            componment=<ChangeSchool ref={(node)=>fra=node}/>
+            componment=<ChangeSchool />
+        }else if(type=="changePlat"){
+            componment=<ChangePlat/>
         }
         return (
             <Layout style={{height:'100%'}}>
                 <Header className="header" style={{lineHeight:'55px',height:'55px'}}>
                     {/* <div className="logo"/> */}
-                    <Row style={{lineHeight:'44px'}}>
+                    <Row style={{lineHeight:'55px'}}>
                         <Col span={4}>
                             {/* <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/> */}
-                            <span style={{marginLeft: '0px',marginTop:'22px', fontSize: '25px',color:'white'}}>{this.state.platName}</span>
+                            <span style={{marginLeft: '0px', fontSize: '25px',color:'white'}}>{this.state.platName}
+                            <a onClick={this.changePlat.bind(this)} key='changePlat' style={{fontSize:'15px'}}>【切换】</a>
+                            </span>
                         </Col>
                         <Col span={11}>
                             <Menu
@@ -348,16 +333,16 @@ class indexP extends Component {
                             {this.renderMenuItems()}
                         </Menu>
                     </Sider>
-                    <Layout style={{padding: '0 24px 24px'}}>
-                        <Breadcrumb style={{margin: '16px 0'}}>
+                    <Layout>
+                        <Breadcrumb style={{margin: '16px 20px'}}>
                             <Breadcrumb.Item>{this.state.iframeName}</Breadcrumb.Item>
                         </Breadcrumb>
                         <Content
                             style={{
                                 background: '#fff',
-                                padding: 24,
                                 margin: 0,
                                 minHeight: 280,
+                                display:'contents'
                             }}
                         >
                             {componment}

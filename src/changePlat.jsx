@@ -1,4 +1,3 @@
-
 import {Popconfirm, message, Table} from 'antd';
 import React from 'react';
 // import {Button} from 'antd';
@@ -35,7 +34,7 @@ class ChangeSchool extends React.Component {
         let tempInfo = Store.get(storekeyname.personIfo);
         tempInfo.user.school_name = record.name;
         tempInfo.user.school_code = record.id;
-        tempInfo.modifyFlag = 1;//1切换单位，2切换平台
+        tempInfo.modifyFlag = 2;//1切换单位，2切换平台
         Store.set(storekeyname.personIfo, tempInfo);
         window.parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
       } else {
@@ -92,7 +91,7 @@ class ChangeSchool extends React.Component {
       },
       {
         title: '学校代码',
-        dataIndex: 'id',
+        dataIndex: 'code',
         width: 100,
       },
       // {
