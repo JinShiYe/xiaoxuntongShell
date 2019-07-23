@@ -39,13 +39,14 @@ const myUtils = {
             url = storekeyname.INTERFACEGU + requestUrl;
         }
         console.log('url:'+url);
+        console.log('params:'+JSON.stringify(params));
         axios.post(url, params).then(function (response) {
             console.log('responseUrl:'+requestUrl+',data:'+JSON.stringify(response.data));
             callback(response.data);
         }).catch(function (error) {
             // console.log('error:'+requestUrl+',data:'+JSON.stringify(error));
             console.log(error);
-            message.error(error);
+            message.error('服务器出现错误，请稍微再试');
             // callback(error);
         });
     },

@@ -7,8 +7,10 @@ import Store from './store';
 import Iframe from 'react-iframe';
 import myUtils from './myUtils';
 import Home from './test1';
+
 import App11 from './test2';
 import ModifyHeadImg from "./modify_headimage/head_image";
+import ChangeSchool from "./changeSchool";
 
 var tempV = Store.get(storekeyname.personIfo);
 console.log('tempV:' + JSON.stringify(tempV));
@@ -90,53 +92,60 @@ class indexP extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            platName:Store.get(storekeyname.personIfo).user.platform_name,//平台名称
+            schoolName:Store.get(storekeyname.personIfo).user.school_name,//学校名称
             headImg:Store.get(storekeyname.personIfo).user.img_url+'?'+Math,//头像
             menusList:[],
+            detailList:[],
             iframeName:'首页',
             type:"iframe",
+            MenuKey:'1',
+            detailMenuKey:'1',
         };
     }
     componentDidMount() {
+        let that =this;
         window.addEventListener('message', function(ev) {
-            // if (ev.source !== window.parent) {return;}
-            console.log('ev.source:'+ev.source);
-            console.log('window.parent:'+window.parent);
             var data = ev.data;
             console.info('message from parent indexP:', data);
+            
+            if (Store.get(storekeyname.personIfo).modifyFlag === 1) {
+                let tempInfo = Store.get(storekeyname.personIfo);
+                tempInfo.modifyFlag = 9;//1切换单位，2切换平台
+                Store.set(storekeyname.personIfo, tempInfo);
+                that.setState({
+                    platName:Store.get(storekeyname.personIfo).user.platform_name,//平台名称
+                    schoolName:Store.get(storekeyname.personIfo).user.school_name,//学校名称
+                });
+                window.location.reload(true);
+            } else if (Store.get(storekeyname.personIfo).modifyFlag === 2) {
+                
+            }
         }, false);
 
+        // 获取菜单
+        this.getMenusList();
+    }
+    getMenusList = ()=>{
         var comData1 = {
             platform_code: storekeyname.PLATFORMCODE, //平台代码
             app_code: storekeyname.APPCODE, //应用系统代码
+            unit_code:Store.get(storekeyname.personIfo).user.school_code, //单位代码
             access_token: Store.get(storekeyname.personIfo).access_token //用户令牌
         }
-        let that =this;
-        // console.log('comData11111111:' + JSON.stringify(comData1));
+        console.log('comData11111111:' + JSON.stringify(comData1));
         myUtils.post(0, 'api/acl/menu', comData1, res1 => {
             if (res1.code === '0000') {
                 if (res1.data.length>0) {
-                    for (var index = 0; index < res1.data.length; index++) {
-                        const element = res1.data[index];
-                        for (let a = 0; a < element.childList.length; a++) {
-                            const tempM0 = element.childList[a];
-                            if (!tempM0.childList) {
-                                tempM0.childList = [];
-                            }
-                            for (let b = 0; b < tempM0.childList.length; b++) {
-                                const tempM1 = tempM0.childList[b];
-                                if (!tempM1.childList) {
-                                    tempM1.childList = [];
-                                }
-                            }
-                        }
-                    }
                     this.setState({
-                        menusList: res1.data[0].childList
-                      });
+                        menusList: res1.data[0].childList,
+                        detailList: res1.data[0].childList[0].childList,
+                        MenuKey:res1.data[0].childList[0].id.toString(),
+                        detailMenuKey:'item1'
+                    });
                 } else {
-                    const modal = Modal.error({
-                        title: '当前账号无权限',
-                        onOk:that.confirm()
+                    Modal.error({
+                        title: '当前账号无权限'
                       });
 
                 }
@@ -145,64 +154,66 @@ class indexP extends Component {
             }
         });
     }
+    changeMenus=(e)=>{
+        console.log('changeMenus.e.key:'+e.key);
+        for (let index = 0; index < this.state.menusList.length; index++) {
+            const element = this.state.menusList[index];
+            if(e.key.toString() === element.id.toString()){
+                this.setState({
+                    detailList: element.childList
+                });
+                fra.setUrl('https://www.baidu.com');
+                this.setState({
+                    iframeName:'默认百度首页',
+                    MenuKey:element.id.toString(),
+                    detailMenuKey:'item1'
+                });
+            }
+        }
+    }
 
     handleClick=e=>{
         console.log('e.key:'+e.key);
         this.setState({
             type:"iframe"
-        })
-        let that=this;
-        // setTimeout(function () {
-            console.log(fra)
-            for (let index = 0; index < that.state.menusList.length; index++) {
-                const element = that.state.menusList[index];
-                // console.log('element:'+JSON.stringify(element));
+        });
+        this.clickMenus(e.key,this.state.detailList);
+    }
+    clickMenus = (key,list)=>{
+        for (let index = 0; index < list.length; index++) {
+            const element = list[index];
+            if (key.toString() === 'item1') {
+                fra.setUrl('https://www.baidu.com');
+                this.setState({
+                    iframeName:'默认百度首页',
+                    detailMenuKey:'item1'
+                });
+            }else if (key.toString() === element.id.toString()) {
                 if (element.url == null) {
-                    for (let a = 0; a < element.childList.length; a++) {
-                        const element1 = element.childList[a];
-                        console.log('e.key:'+e.key+',element1.id:'+element1.id);
-                        if (e.key.toString() === 'item1') {
-                            fra.setUrl('https://www.baidu.com');
-                            that.setState({
-                                iframeName:'默认百度首页'
-                            });
-                        }else if (e.key.toString() === element1.id.toString()) {
-                            let url = element1.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
-                            console.log('url:'+url);
-                            fra.setUrl(url);
-
-                            setTimeout(() => {
-                                console.log('settimeout1111');
-                                let ifm= document.getElementById("myId");
-                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
-                                // window.postMessage('123','*');
-                                // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
-                            }, 500);
-                            // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),storekeyname.noticeUrl);
-                            // window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
-                            // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
-                            that.setState({
-                                iframeName:element1.name
-                            });
-                        }
-                    }
-                } else if(e.key.toString() === element.id.toString()){
+                    message.error('当前应用系统无法使用，请联系管理员');
+                } else {
                     let url = element.url + '?access_token='+ Store.get(storekeyname.personIfo).access_token;
-                            console.log('url:'+url);
-                            fra.setUrl(url);
-
-                            setTimeout(() => {
-                                console.log('settimeout1111');
-                                let ifm= document.getElementById("myId");
-                                ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
-                            }, 2000);
-                            that.setState({
-                                iframeName:element.name
-                            });
+                    console.log('url:'+url);
+                    fra.setUrl(url);
+                    setTimeout(() => {
+                        console.log('settimeout1111');
+                        let ifm= document.getElementById("myId");
+                        ifm.contentWindow.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                        // window.postMessage('123','*');
+                        // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'*');
+                    }, 500);
+                    // window.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),storekeyname.noticeUrl);
+                    // window.parent.postMessage('12312312312', '*'); // 触发父页面的message事件
+                    // parent.postMessage(JSON.stringify(Store.get(storekeyname.personIfo)),'http://localhost:3000');
+                    this.setState({
+                        iframeName:element.name,
+                        detailMenuKey:element.id.toString()
+                    });
                 }
-
+            }else{
+                this.clickMenus(key,element.childList);
             }
-        // },500)
+        }
     }
     confirm=e=>{
         console.log(e);
@@ -216,7 +227,7 @@ class indexP extends Component {
         // message.error('Click on No');
       }
       onClickModify = ({ key }) => {
-          console.log('key:'+key);
+          console.log('onClickModify.key:'+key);
           if (key === 'iframe') {
               this.setState({
                   type:"iframe"
@@ -233,12 +244,34 @@ class indexP extends Component {
               })
           }
       }
+      changeSchool = ({key}) =>{
+        console.log('changeSchool.key:'+key);
+        this.setState({
+            type:"changeSchool"
+        })
+      }
 
       onImgChange=(url)=>{
           this.setState({
               headImg:url+'?imgid='+Math,
               type:"iframe"
           })
+      }
+
+      renderMenuItems(detailList = this.state.detailList, level = 0) {
+        return detailList.map((menu) => {
+          if (menu.childList && menu.childList.length) {
+            return (
+              <Menu.SubMenu key={menu.id} title={menu.name}>
+                {this.renderMenuItems(menu.childList, level + 1)}
+              </Menu.SubMenu>
+            )
+          } else {
+            return (
+              <Menu.Item key={menu.id}>{menu.name}</Menu.Item>
+            )
+          }
+        })
       }
 
     render() {
@@ -250,50 +283,38 @@ class indexP extends Component {
             componment=<App11 ref={(node)=>fra=node}/>
         }else if(type=="modifyHeadImg"){
             componment=<ModifyHeadImg ref={(node)=>fra=node} onImgChange={this.onImgChange}/>
+        }else if(type=="changeSchool"){
+            componment=<ChangeSchool ref={(node)=>fra=node}/>
         }
-        // console.log('storekeyname.personIfo:'+JSON.stringify(Store.get(storekeyname.personIfo)));
-        var list = (array) => {
-            // console.log('array:'+JSON.stringify(array));
-            // array = this.state.menusList;
-            var res = [];
-            for(var i = 0; i < array.length; i++) {
-                var listModel = array[i];
-                // console.log('listModel:'+JSON.stringify(listModel));
-                if (listModel.url==null) {
-                    res.push(<SubMenu key={listModel.id} title={<span><Icon type="desktop"/>{listModel.name}</span>}>
-                    {listModel.childList.map((detailModel) =>
-                        <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
-                    )}
-             </SubMenu>)
-                } else {
-                    res.push(<Menu.Item key={listModel.id}><span><Icon type="desktop"/>{listModel.name}</span></Menu.Item>)
-                }
-            }
-            return res
-          }
         return (
             <Layout style={{height:'100%'}}>
-                <Header className="header">
-                    <div className="logo"/>
-                    <Row>
-                        <Col span={5}>
-                            <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/>
-                            <span style={{marginLeft: '20px', fontSize: '25px',color:'white'}}>{Store.get(storekeyname.personIfo).user.school_name}</span>
+                <Header className="header" style={{lineHeight:'55px',height:'55px'}}>
+                    {/* <div className="logo"/> */}
+                    <Row style={{lineHeight:'44px'}}>
+                        <Col span={4}>
+                            {/* <Avatar size="large" style={{marginTop: '-10px'}} src={this.state.headImg}/> */}
+                            <span style={{marginLeft: '0px',marginTop:'22px', fontSize: '25px',color:'white'}}>{this.state.platName}</span>
                         </Col>
-                        <Col span={14}>
+                        <Col span={11}>
                             <Menu
                                 theme="dark"
                                 mode="horizontal"
-                                defaultSelectedKeys={['2']}
+                                selectedKeys={[this.state.MenuKey]}
                                 width='200px'
-                                style={{ lineHeight: '64px',whiteSpace:'nowrap' }}
+                                style={{ lineHeight: '55px',whiteSpace:'nowrap' }}
+                                onClick={this.changeMenus}
                             >
-                                <Menu.Item key="1">nav 1</Menu.Item>
-                                <Menu.Item key="2">nav 2</Menu.Item>
-                                <Menu.Item key="3">nav 3</Menu.Item>
+                                {this.state.menusList.map((menusModel) =>
+                                        <Menu.Item key={menusModel.id}>{menusModel.name}</Menu.Item>
+                                    )}
                             </Menu>
                         </Col>
                         <Col span={5}>
+                            <span style={{marginLeft: '0px', fontSize: '18px',color:'white'}}>{this.state.schoolName}
+                                <a onClick={this.changeSchool.bind(this)} key='changeSchool' style={{fontSize:'15px'}}>【切换】</a>
+                            </span>
+                        </Col>
+                        <Col span={4}>
                             <span style={{float:'right'}}>
                                 <Avatar size="large" style={{marginTop: '0px',width:'25px',height:'25px'}} src={this.state.headImg}/>
                                 <Dropdown overlay={
@@ -314,27 +335,17 @@ class indexP extends Component {
 
                 </Header>
                 <Layout>
-                    <Sider width={200} style={{background: '#fff'}}>
+                    <Sider width={200} style={{background: '#fff',overflow:'auto'}}>
                         <Menu
-                            mode="inline"
                             defaultSelectedKeys={['item1']}
-                            defaultOpenKeys={['sub1']}
-                            style={{height: '100%', borderRight: 0}}
+                            selectedKeys={[this.state.detailMenuKey]}
+                            style={{height: '100%', borderRight: 0,lineHeight: '44px'}}
                             mode="inline"
                             theme="dark"
                             onClick={this.handleClick}
                         >
-                            {/* <SubMenu key='sub1' title={<span><Icon type="desktop"/>首页</span>}> */}
-                                <Menu.Item key='item1'><span><Icon type="desktop"/>首页</span></Menu.Item>
-                             {/* </SubMenu> */}
-                             {list(this.state.menusList)}
-                            {/* {this.state.menusList.map((listModel) =>
-                                <SubMenu key={listModel.id} title={<span><Icon type="desktop"/>{listModel.name}</span>}>
-                                    {listModel.childList.map((detailModel) =>
-                                        <Menu.Item key={detailModel.id}>{detailModel.name}</Menu.Item>
-                                    )}
-                             </SubMenu>
-                            )} */}
+                            <Menu.Item key='item1'><span><Icon type="desktop"/>首页</span></Menu.Item>
+                            {this.renderMenuItems()}
                         </Menu>
                     </Sider>
                     <Layout style={{padding: '0 24px 24px'}}>
